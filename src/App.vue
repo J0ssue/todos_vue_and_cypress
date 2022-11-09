@@ -9,6 +9,7 @@ interface Todo {
 const todos: Ref<Todo[]> = ref([]);
 const todo: Ref<string> = ref("");
 const loading: Ref<boolean> = ref(true);
+const todosBeingEdited: Ref<number[]> = ref([]);
 
 function saveTodosIntoLocalStorage() {
   localStorage.setItem("todos", JSON.stringify(todos.value));
@@ -49,6 +50,15 @@ function updateTodo() {
   saveTodosIntoLocalStorage();
 }
 
+function editTodo(id: number) {
+  todosBeingEdited.value.push(id);
+}
+
+function saveEditedTodos() {
+  saveTodosIntoLocalStorage();
+  todosBeingEdited.value = [];
+}
+
 onMounted(() => {
   loading.value = true;
   let id = setTimeout(() => {
@@ -60,19 +70,71 @@ onMounted(() => {
 </script>
 
 <template>
-  <div>
+  <div class="container">
     <h1>Todos</h1>
     <div v-if="loading">Loading...</div>
     <ul v-else class="todos-list">
       <li v-for="todo in todos" :key="todo.id">
         <input type="checkbox" v-model="todo.completed" @change="updateTodo" />
-        <h4>{{ todo.description }}</h4>
+        <h4>
+          <input
+            v-if="todosBeingEdited.includes(todo.id)"
+            type="text"
+            v-model="todo.description"
+          />
+          <span v-else class="todo-description">
+            {{ todo.description }}
+          </span>
+        </h4>
         <button @click="deleteTodo(todo.id)">delete</button>
+        <button @click="editTodo(todo.id)" :disabled="todosBeingEdited.includes(todo.id)">
+          edit
+        </button>
       </li>
+      <button v-if="todosBeingEdited.length > 0" @click="saveEditedTodos">save</button>
     </ul>
-    <div id="input">
+    <div id="todoBar">
       <input v-model="todo" type="text" />
       <button @click="addTodo()">create todo</button>
     </div>
   </div>
 </template>
+
+<style>
+.container,
+ul {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  /* align-self: stretch; */
+}
+
+.container ul {
+  max-width: calc(768px - 32px);
+  margin: 40px 0px;
+}
+
+.todos-list li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  border: 1px solid gray;
+}
+
+.todos-list h4 {
+  flex: 1;
+}
+
+.todos-list .todo-description {
+  padding: 20px 40px;
+}
+
+#todoBar input {
+  width: 280px;
+  height: 32px;
+  padding: 10px;
+  margin-right: 20px;
+}
+</style>
