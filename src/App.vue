@@ -71,31 +71,49 @@ onMounted(() => {
 
 <template>
   <div class="container">
-    <h1>Todos</h1>
+    <h1 data-testid="title">Todos</h1>
     <div v-if="loading">Loading...</div>
     <ul v-else class="todos-list">
-      <li v-for="todo in todos" :key="todo.id">
-        <input type="checkbox" v-model="todo.completed" @change="updateTodo" />
+      <li v-for="todo in todos" :key="todo.id" data-testid="todo-item">
+        <input
+          type="checkbox"
+          v-model="todo.completed"
+          @change="updateTodo"
+          data-testid="complete-todo-input"
+        />
         <h4>
           <input
             v-if="todosBeingEdited.includes(todo.id)"
             type="text"
             v-model="todo.description"
+            data-testid="edit-todo-input"
           />
           <span v-else class="todo-description">
             {{ todo.description }}
           </span>
         </h4>
-        <button @click="deleteTodo(todo.id)">delete</button>
-        <button @click="editTodo(todo.id)" :disabled="todosBeingEdited.includes(todo.id)">
+        <button @click="deleteTodo(todo.id)" data-testid="delete-todo-button">
+          delete
+        </button>
+        <button
+          @click="editTodo(todo.id)"
+          :disabled="todosBeingEdited.includes(todo.id)"
+          data-testid="edit-todo-button"
+        >
           edit
         </button>
       </li>
-      <button v-if="todosBeingEdited.length > 0" @click="saveEditedTodos">save</button>
+      <button
+        v-if="todosBeingEdited.length > 0"
+        @click="saveEditedTodos"
+        data-testid="save-todo-button"
+      >
+        save
+      </button>
     </ul>
     <div id="todoBar">
-      <input v-model="todo" type="text" />
-      <button @click="addTodo()">create todo</button>
+      <input v-model="todo" type="text" data-testid="create-todo-input" />
+      <button @click="addTodo()" data-testid="create-todo-button">create todo</button>
     </div>
   </div>
 </template>
